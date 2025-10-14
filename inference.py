@@ -1,59 +1,70 @@
 import pandas as pd
+import warnings
+import pandas as pd
 import numpy as np
-
 from joblib import load
+import numpy as np
+from joblib import load
+import os
 
-from sklearn.preprocessing import StandardScaler
-from sklearn.experimental import enable_iterative_imputer
-from sklearn.impute import IterativeImputer
+DATASET_PATH = "dataset/paad_tcga_gdc_clinical_data.tsv"
+MODEL_PATH = "bin/model.joblib"
+IMPUTER_PATH = "bin/imputer.joblib"
+SCALER_PATH = "bin/scaler.joblib"
 
-from config import *
+warnings.filterwarnings("ignore")  
+df = pd.read_csv(DATASET_PATH, sep="\t")
 
-cph = load(f"{MODEL_PATH}.joblib")
+df = df.rename(columns={
+    "Overall Survival (Months)": "duration",
+    "Overall Survival Status": "event"
+})
 
-file_path = f"{DATASET_PATH}.tsv"
-df = pd.read_csv(file_path, sep="\t")
-
-sample_df = df.sample(n=5, random_state=42)
-
-sample_original = sample_df.copy()
+df["event"] = df["event"].str.contains("DECEASED").astype(int)
 
 leakage_cols = [
     "Death from Initial Pathologic Diagnosis Date",
     "Last Communication Contact from Initial Pathologic Diagnosis Date",
     "Disease Free (Months)",
-    "Disease Free Status"
+    "Disease Free Status",
+    "American Joint Committee on Cancer Publication Version Type",
+    "Patient's Vital Status"
 ]
 id_cols = ["Study ID", "Patient ID", "Sample ID", "Other Patient ID", "Other Sample ID"]
-sample_df = sample_df.drop(columns=leakage_cols + id_cols, errors='ignore')
 
-sample_df = sample_df.loc[:, sample_df.nunique() > 1]
+df = df.drop(columns=leakage_cols + id_cols, errors='ignore')
 
-cat_cols = sample_df.select_dtypes(include="object").columns.tolist()
-sample_df_encoded = pd.get_dummies(sample_df, columns=cat_cols, drop_first=True)
+df = df.dropna(axis=1, thresh=0.6 * len(df))
+df = df.loc[:, df.nunique() > 1]
 
-model_features = cph.params_.index.tolist()
-sample_X = sample_df_encoded.reindex(columns=model_features, fill_value=0)
+cat_cols = [c for c in df.select_dtypes(include="object").columns if c not in ["duration", "event"]]
+df_encoded = pd.get_dummies(df, columns=cat_cols, drop_first=True)
 
-imputer = IterativeImputer(max_iter=20, random_state=42)
-sample_X_imputed = imputer.fit_transform(sample_X)
-sample_X = pd.DataFrame(sample_X_imputed, columns=sample_X.columns)
+df_encoded["duration"] = np.log1p(df_encoded["duration"])
 
-scaler = StandardScaler()
-sample_X_scaled = scaler.fit_transform(sample_X)
-sample_X = pd.DataFrame(sample_X_scaled, columns=sample_X.columns)
+cph = load(MODEL_PATH)
+imputer = load(IMPUTER_PATH)
+scaler = load(SCALER_PATH)
 
-pred_hazard = cph.predict_partial_hazard(sample_X)
+samples = df_encoded.sample(n=5, random_state=2)
+sample_info = samples[["duration", "event"]]
 
-key_features = ["Diagnosis Age", "Fraction Genome Altered", "Mutation Count"]
-pretty_df = sample_original[key_features + ["Overall Survival (Months)", "Overall Survival Status"]].copy()
-pretty_df = pretty_df.rename(columns={
-    "Overall Survival (Months)": "duration",
-    "Overall Survival Status": "event"
-})
-pretty_df["Predicted_Hazard"] = pred_hazard.values
+X_new = samples.drop(columns=["duration", "event"])
 
-pretty_df["event"] = pretty_df["event"].apply(lambda x: 1 if "DECEASED" in str(x) else 0)
+for col in cph.params_.index:
+    if col not in X_new.columns:
+        X_new[col] = 0
+X_new = X_new[cph.params_.index] 
 
-print(pretty_df.to_string(index=False))
+X_new_imputed = imputer.transform(X_new)
+X_new_scaled = scaler.transform(X_new_imputed)
+
+X_new_final = pd.DataFrame(X_new_scaled, columns=X_new.columns, index=samples.index)
+
+pred_hazard = cph.predict_partial_hazard(X_new_final)
+
+print(sample_info)
+
+for idx, val in zip(pred_hazard.index, pred_hazard.values.flatten()):
+    print(f"Sample {idx}: {val:.4f}")
 
