@@ -14,12 +14,12 @@ nix develop
 ```
 
 ### Inference
-Demo Inference: Picks 5 random samples from the dataset to run inference.
+Demo Inference: Picks 5 random samples from the dataset to run inference. (pre-trained model is already present in `bin/`)
 ```
 python3 inference.py
 ```
 
 ### Training
-Run the `.ipynb` file to train the model.
+To see the training process or re-train the model, run `training.ipynb`
 
 
