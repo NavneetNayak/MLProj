@@ -3,6 +3,12 @@ scikit-learn
 pandas
 numpy
 joblib
+matplotlib
 
+# Web interface dependencies
+flask
+statsmodels
+
+# Development tools
 ruff
 pylsp-rope

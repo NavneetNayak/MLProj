@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pancreatic Cancer Survival Prediction</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏥 Pancreatic Cancer Survival Prediction</h1>
+            <p>Enter patient clinical data to predict survival outcomes</p>
+        </div>
+
+        <div class="form-container">
+            <form id="predictionForm">
+                
+                <!-- Basic Patient Info -->
+                <div class="section">
+                    <h2 class="section-title">Patient Information</h2>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="age">Age at Diagnosis *</label>
+                            <input type="number" id="age" name="Diagnosis Age" required min="0" max="120" placeholder="65">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="sex">Sex *</label>
+                            <select id="sex" name="Sex" required>
+                                <option value="">Select...</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="race">Race</label>
+                            <select id="race" name="Race Category">
+                                <option value="">Select...</option>
+                                <option value="WHITE">White</option>
+                                <option value="BLACK OR AFRICAN AMERICAN">Black or African American</option>
+                                <option value="ASIAN">Asian</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="ethnicity">Ethnicity</label>
+                            <select id="ethnicity" name="Ethnicity Category">
+                                <option value="">Select...</option>
+                                <option value="NOT HISPANIC OR LATINO">Not Hispanic or Latino</option>
+                                <option value="HISPANIC OR LATINO">Hispanic or Latino</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="alcohol">Alcohol History</label>
+                            <select id="alcohol" name="Alcohol History Documented">
+                                <option value="">Select...</option>
+                                <option value="True">Yes</option>
+                                <option value="False">No</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cancer Diagnosis -->
+                <div class="section">
+                    <h2 class="section-title">Cancer Diagnosis</h2>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="disease_type">Disease Type</label>
+                            <select id="disease_type" name="Disease Type">
+                                <option value="">Select...</option>
+                                <option value="Pancreas-Adenocarcinoma Ductal Type">Ductal Type</option>
+                                <option value="Pancreas-Adenocarcinoma-Other Subtype">Other Subtype</option>
+                                <option value="Pancreas-Colloid (mucinous non-cystic) Carcinoma">Colloid Carcinoma</option>
+                                <option value="Pancreas-Undifferentiated Carcinoma">Undifferentiated</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="primary_diagnosis">Primary Diagnosis</label>
+                            <select id="primary_diagnosis" name="Primary Diagnosis">
+                                <option value="">Select...</option>
+                                <option value="Pancreas-Adenocarcinoma Ductal Type">Ductal Type</option>
+                                <option value="Pancreas-Adenocarcinoma-Other Subtype">Other Subtype</option>
+                                <option value="Pancreas-Colloid (mucinous non-cystic) Carcinoma">Colloid Carcinoma</option>
+                                <option value="Pancreas-Undifferentiated Carcinoma">Undifferentiated</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="morphology">Morphology</label>
+                            <select id="morphology" name="Morphology">
+                                <option value="">Select...</option>
+                                <option value="8500/3">8500/3 - Ductal</option>
+                                <option value="8140/3">8140/3 - Adenocarcinoma</option>
+                                <option value="8480/3">8480/3 - Mucinous</option>
+                                <option value="8020/3">8020/3 - Undifferentiated</option>
+                                <option value="8246/3">8246/3 - Neuroendocrine</option>
+                                <option value="8255/3">8255/3 - Mixed</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="icd10">Tumor Location (ICD-10)</label>
+                            <select id="icd10" name="ICD-10 Classification">
+                                <option value="">Select...</option>
+                                <option value="C25.0">C25.0 - Head</option>
+                                <option value="C25.1">C25.1 - Body</option>
+                                <option value="C25.2">C25.2 - Tail</option>
+                                <option value="C25.8">C25.8 - Overlapping</option>
+                                <option value="C25.9">C25.9 - Unspecified</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cancer Staging -->
+                <div class="section">
+                    <h2 class="section-title">Cancer Staging (AJCC)</h2>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="stage">Overall Stage</label>
+                            <select id="stage" name="AJCC Pathologic Stage">
+                                <option value="">Select...</option>
+                                <option value="Stage IA">Stage IA</option>
+                                <option value="Stage IB">Stage IB</option>
+                                <option value="Stage I">Stage I</option>
+                                <option value="Stage IIA">Stage IIA</option>
+                                <option value="Stage IIB">Stage IIB</option>
+                                <option value="Stage III">Stage III</option>
+                                <option value="Stage IV">Stage IV</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="t_stage">T-Stage (Tumor)</label>
+                            <select id="t_stage" name="AJCC Pathologic T-Stage">
+                                <option value="">Select...</option>
+                                <option value="T1">T1</option>
+                                <option value="T2">T2</option>
+                                <option value="T3">T3</option>
+                                <option value="T4">T4</option>
+                                <option value="TX">TX (Unknown)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="n_stage">N-Stage (Lymph Nodes)</label>
+                            <select id="n_stage" name="AJCC Pathologic N-Stage">
+                                <option value="">Select...</option>
+                                <option value="N0">N0 (No spread)</option>
+                                <option value="N1">N1 (Regional)</option>
+                                <option value="N1b">N1b</option>
+                                <option value="NX">NX (Unknown)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="m_stage">M-Stage (Metastasis)</label>
+                            <select id="m_stage" name="AJCC Pathologic M-Stage">
+                                <option value="">Select...</option>
+                                <option value="M0">M0 (None)</option>
+                                <option value="M1">M1 (Present)</option>
+                                <option value="MX">MX (Unknown)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Clinical Data -->
+                <div class="section">
+                    <h2 class="section-title">Clinical & Genomic Data</h2>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="fraction_genome">Fraction Genome Altered</label>
+                            <input type="number" id="fraction_genome" name="Fraction Genome Altered" 
+                                   step="0.0001" min="0" max="1" placeholder="0.25">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="mutation_count">Mutation Count</label>
+                            <input type="number" id="mutation_count" name="Mutation Count" 
+                                   min="0" placeholder="45">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="sample_type">Sample Type</label>
+                            <select id="sample_type" name="Sample Type">
+                                <option value="">Select...</option>
+                                <option value="Primary Tumor">Primary Tumor</option>
+                                <option value="Metastatic">Metastatic</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="year_diagnosis">Year of Diagnosis</label>
+                            <input type="number" id="year_diagnosis" name="Year of Diagnosis" 
+                                   min="2000" max="2030" placeholder="2020">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Optional Technical Fields (collapsed by default) -->
+                <div class="section">
+                    <details>
+                        <summary style="cursor: pointer; font-weight: 600; color: var(--primary); margin-bottom: 1rem;">
+                            ⚙️ Advanced Fields (Optional)
+                        </summary>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="birth_date">Days from Birth to Diagnosis</label>
+                                <input type="number" id="birth_date" name="Birth from Initial Pathologic Diagnosis Date" 
+                                       placeholder="-23000">
+                                <span class="info-text">Negative value</span>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="sample_type_id">Sample Type ID</label>
+                                <input type="number" id="sample_type_id" name="Sample type id" 
+                                       min="1" placeholder="1">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="num_samples">Number of Samples</label>
+                                <input type="number" id="num_samples" name="Number of Samples Per Patient" 
+                                       min="1" placeholder="1">
+                            </div>
+                        </div>
+                    </details>
+                </div>
+
+                <!-- Buttons -->
+                <div class="button-group">
+                    <button type="button" class="btn btn-secondary" onclick="resetForm()">Reset Form</button>
+                    <button type="button" class="btn btn-secondary" onclick="loadRandomSample()" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white;">🎲 Random Sample</button>
+                    <button type="submit" class="btn btn-primary">Predict Survival Risk</button>
+                </div>
+
+                <div class="error" id="errorMessage"></div>
+            </form>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Analyzing patient data...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Result Modal -->
+    <div class="result-modal" id="resultModal">
+        <div class="result-content">
+            <div class="result-header">
+                <h2>📊 Prediction Results</h2>
+            </div>
+            <div class="result-body" id="resultBody">
+                <!-- Results will be inserted here -->
+            </div>
+            <div style="padding:0 1rem 1rem;">
+                <h3 style="margin:0 0 0.5rem;font-size:1rem;color:var(--gray-700)">Top Contributors</h3>
+                <ul id="contributorsList" style="list-style:none;padding-left:0;margin:0 0 1rem;">
+                    <!-- contributors inserted here -->
+                </ul>
+            </div>
+            <button class="close-btn" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+
+    <script>
+        // Radio button selection styling
+        document.querySelectorAll('.radio-option').forEach(option => {
+            option.addEventListener('click', function() {
+                const radio = this.querySelector('input[type="radio"]');
+                radio.checked = true;
+                this.closest('.radio-group').querySelectorAll('.radio-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                this.classList.add('selected');
+            });
+        });
+
+        // Form submission
+        document.getElementById('predictionForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const data = {};
+            
+            // Convert form data to object
+            for (let [key, value] of formData.entries()) {
+                if (value !== '') {
+                    // Convert boolean strings
+                    if (value === 'True') {
+                        data[key] = true;
+                    } else if (value === 'False') {
+                        data[key] = false;
+                    } else if (!isNaN(value) && value !== '') {
+                        data[key] = parseFloat(value);
+                    } else {
+                        data[key] = value;
+                    }
+                }
+            }
+            
+            // Show loading
+            document.getElementById('loading').classList.add('show');
+            document.getElementById('errorMessage').classList.remove('show');
+            
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showResults(result);
+                } else {
+                    showError(result.error || 'Prediction failed. Please check your inputs.');
+                }
+            } catch (error) {
+                showError('Network error. Please ensure the server is running.');
+            } finally {
+                document.getElementById('loading').classList.remove('show');
+            }
+        });
+
+        function showResults(result) {
+            const resultBody = document.getElementById('resultBody');
+            
+            // Convert partial hazard to a more human-readable scale
+            const partialHazard = result.partial_hazard;
+            
+            // Create a risk score from 0-100 based on log scale
+            // Log transform to handle the wide range of hazard values
+            let riskScore;
+            if (partialHazard <= 0) {
+                riskScore = 0;
+            } else {
+                // Use log10 scale: values range from ~1e-11 to ~150
+                // Map log(-11) to log(2.5) → 0 to 100
+                const logHazard = Math.log10(partialHazard);
+                // Normalize: -11 = 0%, 2.5 = 100%
+                riskScore = Math.max(0, Math.min(100, ((logHazard + 11) / 13.5) * 100));
+            }
+            
+            // Determine risk level and color
+            let riskLevel, riskColor;
+            if (riskScore < 30) {
+                riskLevel = 'Lower Risk';
+                riskColor = '#10b981'; // green
+            } else if (riskScore < 70) {
+                riskLevel = 'Moderate Risk';
+                riskColor = '#f59e0b'; // orange
+            } else {
+                riskLevel = 'Higher Risk';
+                riskColor = '#ef4444'; // red
+            }
+
+            resultBody.innerHTML = `
+                <div class="result-item" style="flex-direction: column; align-items: center; padding: 2rem;">
+                    <span class="result-label" style="font-size: 1rem; margin-bottom: 1rem;">Survival Risk Score</span>
+                    <span class="result-value" style="font-size: 4rem; font-weight: 800; color: ${riskColor}; line-height: 1;">
+                        ${Math.round(riskScore)}
+                    </span>
+                    <span style="font-size: 1.2rem; color: ${riskColor}; font-weight: 600; margin-top: 0.5rem;">
+                        ${riskLevel}
+                    </span>
+                    <div style="width: 100%; height: 12px; background: linear-gradient(to right, #10b981, #f59e0b, #ef4444); border-radius: 6px; margin-top: 1.5rem; position: relative;">
+                        <div style="position: absolute; left: ${riskScore}%; top: -8px; width: 4px; height: 28px; background: #1f2937; border-radius: 2px; transform: translateX(-50%);"></div>
+                    </div>
+                    <div style="width: 100%; display: flex; justify-content: space-between; margin-top: 0.5rem; font-size: 0.75rem; color: var(--gray-600);">
+                        <span>0</span>
+                        <span>50</span>
+                        <span>100</span>
+                    </div>
+                </div>
+                <div class="result-item" style="padding: 0.75rem 1.5rem; background: var(--gray-50); border-top: 1px solid var(--gray-200);">
+                    <span class="result-label" style="font-size: 0.85rem; color: var(--gray-600);">Raw Model Output:</span>
+                    <span class="result-value" style="font-family: monospace; font-size: 0.85rem; color: var(--gray-700);">${partialHazard.toExponential(4)}</span>
+                </div>
+            `;
+
+            // Remove contributors section
+            const contributorsSection = document.querySelector('details');
+            if (contributorsSection) {
+                contributorsSection.remove();
+            }
+            document.getElementById('resultModal').classList.add('show');
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('resultModal').classList.remove('show');
+        }
+
+        function resetForm() {
+            document.getElementById('predictionForm').reset();
+            document.querySelectorAll('.radio-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            document.getElementById('errorMessage').classList.remove('show');
+        }
+
+        async function loadRandomSample() {
+            try {
+                document.getElementById('errorMessage').classList.remove('show');
+                
+                const response = await fetch('/random_sample');
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    const data = result.data;
+                    
+                    // Fill in the form fields
+                    for (let [key, value] of Object.entries(data)) {
+                        // Find input or select with matching name
+                        const input = document.querySelector(`[name="${key}"]`);
+                        if (input) {
+                            if (input.type === 'checkbox') {
+                                input.checked = value;
+                            } else if (input.tagName === 'SELECT') {
+                                // Try to find matching option
+                                const options = Array.from(input.options);
+                                const match = options.find(opt => opt.value === String(value));
+                                if (match) {
+                                    input.value = match.value;
+                                }
+                            } else {
+                                input.value = value;
+                            }
+                        }
+                    }
+                    
+                    // Show a quick success message
+                    const form = document.getElementById('predictionForm');
+                    const tempMsg = document.createElement('div');
+                    tempMsg.style.cssText = 'background: #10b981; color: white; padding: 0.75rem; border-radius: 8px; margin-top: 1rem; text-align: center;';
+                    tempMsg.textContent = '✓ Random patient data loaded from dataset';
+                    form.appendChild(tempMsg);
+                    setTimeout(() => tempMsg.remove(), 3000);
+                } else {
+                    showError(result.error || 'Failed to load random sample');
+                }
+            } catch (error) {
+                showError('Network error loading random sample');
+                console.error('Random sample error:', error);
+            }
+        }
+
+        // Close modal on outside click
+        document.getElementById('resultModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
