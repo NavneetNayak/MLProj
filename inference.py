@@ -1,6 +1,5 @@
 import pandas as pd
 import warnings
-import pandas as pd
 import numpy as np
 from joblib import load
 import numpy as np
@@ -67,4 +66,3 @@ print(sample_info)
 
 for idx, val in zip(pred_hazard.index, pred_hazard.values.flatten()):
     print(f"Sample {idx}: {val:.4f}")
-
